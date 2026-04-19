@@ -1,0 +1,14 @@
+{
+  "base": {
+    "model": "BASE MODEL",
+    "total_samples": 50,
+    "structure_accuracy": 0.0,
+    "bug_type_accuracy": 0.0
+  },
+  "fine_tuned": {
+    "model": "FINE-TUNED MODEL",
+    "total_samples": 50,
+    "structure_accuracy": 94.0,
+    "bug_type_accuracy": 56.0
+  }
+}
