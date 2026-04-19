@@ -52,10 +52,7 @@ train.py  →  QLoRA fine-tuning on CodeLlama-7b-Instruct
 LoRA Adapter (saved to adapter/final)
         │
         ▼
-inference.py  →  Structured review output
-        │
-        ▼
-Spring Boot REST API  →  POST /review
+inference.py  →  Structured review output (Bug Type / Explanation / Fixed Code)
 ```
 
 ## Training Details
