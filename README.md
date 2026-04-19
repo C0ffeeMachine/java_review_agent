@@ -76,7 +76,7 @@ Spring Boot REST API  →  POST /review
 
 ```bash
 # Clone
-git clone https://github.com/C0ffeeMachine/java-review-agent
+git clone https://github.com/C0ffeeMachine/java_review_agent
 cd java-review-agent
 
 # Install dependencies
