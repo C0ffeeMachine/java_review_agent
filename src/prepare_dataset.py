@@ -75,62 +75,93 @@ def convert_entry(entry: dict) -> dict | None:
 
 
 # --- Run ---
-# with open("data\\raw\\sstubs.json","r",encoding="utf-8") as f:
-#     raw_data = json.load(f)
-
-# converted = [convert_entry(e) for e in raw_data]
-# converted = [e for e in converted if e is not None]
-# converted = [e for e in converted if len(e["input"]) < 1500]
-
-# # Deduplicate
-# seen = set()
-# unique = []
-# for e in converted:
-#     if e["input"] not in seen:
-#         seen.add(e["input"])
-#         unique.append(e)
-
-# print(f"Final dataset size: {len(unique)}")
-
-# with open("data\\processed\\java_review_dataset.json", "w", encoding="utf-8") as f:
-#     json.dump(unique, f, indent=2)
-
-
 with open("data\\raw\\sstubs.json","r",encoding="utf-8") as f:
-    raw = json.load(f)
+    raw_data = json.load(f)
 
-# Test on first 5 entries
-for entry in raw[:5]:
-    buggy, fixed = build_buggy_and_fixed(entry["patch"])
-    print("BEFORE field:", entry["before"])
-    print("AFTER field :", entry["after"])
-    print("=== BUGGY (from patch) ===")
-    print(buggy[:400])
-    print("=== FIXED (from patch) ===")
-    print(fixed[:400])
-    print("---")
+converted = [convert_entry(e) for e in raw_data]
+converted = [e for e in converted if e is not None]
+converted = [e for e in converted if len(e["input"]) < 1500]
+
+# Deduplicate
+seen = set()
+unique = []
+for e in converted:
+    if e["input"] not in seen:
+        seen.add(e["input"])
+        unique.append(e)
+
+print(f"Final dataset size: {len(unique)}")
+
+with open("data\\processed\\java_review_dataset.json", "w", encoding="utf-8") as f:
+    json.dump(unique, f, indent=2)
+
+
+# with open("data\\raw\\sstubs.json","r",encoding="utf-8") as f:
+#     raw = json.load(f)
+
+# # Test on first 5 entries
+# for entry in raw[:5]:
+#     buggy, fixed = build_buggy_and_fixed(entry["patch"])
+#     print("BEFORE field:", entry["before"])
+#     print("AFTER field :", entry["after"])
+#     print("=== BUGGY (from patch) ===")
+#     print(buggy[:400])
+#     print("=== FIXED (from patch) ===")
+#     print(fixed[:400])
+#     print("---")
 
 
 
-# from datasets import Dataset
-#
-# def format_for_sft(entry):
-#     return {
-#         "text": f"""### Instruction:
-# {entry['instruction']}
-#
-# ### Input:
-# {entry['input']}
-#
-# ### Response:
-# {entry['output']}"""
-#     }
-#
-# with open("java_review_dataset.json") as f:
-#     data = json.load(f)
-#
-# hf_dataset = Dataset.from_list([format_for_sft(e) for e in data])
-# hf_dataset = hf_dataset.train_test_split(test_size=0.1)
-#
-# print(hf_dataset)
-# # Expected: DatasetDict with ~1800 train, ~200 test samples
+from datasets import Dataset
+import json
+
+def format_for_sft(entry: dict) -> dict:
+    return {
+        "text": f"""### Instruction:
+{entry['instruction']}
+
+### Input:
+{entry['input']}
+
+### Response:
+{entry['output']}"""
+    }
+
+def load_and_split(path: str, test_size: float = 0.1):
+    with open(path) as f:
+        data = json.load(f)
+
+    print(f"Loaded {len(data)} samples from {path}")
+
+    formatted = [format_for_sft(e) for e in data]
+
+    hf_dataset = Dataset.from_list(formatted)
+    hf_dataset = hf_dataset.train_test_split(test_size=test_size, seed=42)
+
+    return hf_dataset
+
+
+if __name__ == "__main__":
+    # Step 1: Convert raw bugs.json → instruction pairs (your existing code)
+    # Assumes unique[] is already built from your conversion logic above
+    with open("data/processed/java_review_dataset.json") as f:
+        unique = json.load(f)
+
+    # Step 2: Save splits to disk
+    dataset = load_and_split("data/processed/java_review_dataset.json")
+
+    train_data = [entry for entry in dataset["train"]]
+    test_data = [entry for entry in dataset["test"]]
+
+    with open("data/splits/train.json", "w") as f:
+        json.dump(train_data, f, indent=2)
+
+    with open("data/splits/test.json", "w") as f:
+        json.dump(test_data, f, indent=2)
+
+    print(f"Train size: {len(train_data)}")
+    print(f"Test size : {len(test_data)}")
+
+    # Step 3: Sanity check — print one sample
+    print("\n=== Sample Training Entry ===")
+    print(dataset["train"][0]["text"])
