@@ -130,3 +130,23 @@ Trained on 9 real-world Java bug categories from ManySStuBs4J:
 
 Structure Accuracy: % of outputs correctly following Bug Type / Explanation / Fixed Code format  
 Bug Type Accuracy: % of outputs correctly classifying the bug category
+
+
+## Training Progress
+
+### Loss Convergence (Early Training)
+Loss dropped rapidly from ~0.99 → ~0.36 within the first 20% of epoch 1, 
+confirming the base model's strong Java foundation accelerated fine-tuning.
+
+![Training Start](screenshots/training_start.png)
+
+### Training Complete
+Train loss: 0.348 | Eval loss: 0.371 | Token Accuracy: 91.3% | Time: 2h 12m
+
+![Training Complete](screenshots/training_complete.png)
+
+## Evaluation Results
+
+Evaluated on 50 held-out samples never seen during training.
+
+![Eval Comparison](screenshots/eval_comparison.png)
